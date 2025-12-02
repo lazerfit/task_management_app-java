@@ -1,4 +1,4 @@
-package com.steamline.task_management_app_java;
+package com.streamline.task_management_app_java;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
