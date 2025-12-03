@@ -50,8 +50,8 @@ class ProjectControllerTest {
         mockMvc.perform(get("/project/{id}", projectId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(projectId))
-                .andExpect(jsonPath("$.name").value("Test Project"));
+                .andExpect(jsonPath("$.data.id").value(projectId))
+                .andExpect(jsonPath("$.data.name").value("Test Project"));
     }
 
     @DisplayName("프로젝트 생성 요청이 오면, 프로젝트를 생성한다.")
