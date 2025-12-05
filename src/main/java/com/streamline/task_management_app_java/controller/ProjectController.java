@@ -1,5 +1,6 @@
 package com.streamline.task_management_app_java.controller;
 
+import com.streamline.task_management_app_java.controller.dto.ApiResponse;
 import com.streamline.task_management_app_java.controller.dto.ProjectCreateRequest;
 import com.streamline.task_management_app_java.controller.dto.ProjectResponse;
 import com.streamline.task_management_app_java.controller.dto.ProjectUpdateRequest;
@@ -22,8 +23,8 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @GetMapping("/project/{id}")
-    public ResponseEntity<@NonNull ProjectResponse> getProject(@PathVariable Long id) {
-        return ResponseEntity.ok(projectService.getProject(id));
+    public ResponseEntity<@NonNull ApiResponse<ProjectResponse>> getProject(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(projectService.getProject(id)));
     }
 
     @PostMapping("/project")
@@ -41,7 +42,8 @@ public class ProjectController {
     }
 
     @PutMapping("/project/{id}")
-    public ResponseEntity<@NonNull Void> updateProject(@PathVariable Long id, @RequestBody ProjectUpdateRequest request) {
+    public ResponseEntity<@NonNull Void> updateProject(@PathVariable Long id,
+            @RequestBody ProjectUpdateRequest request) {
         projectService.updateProject(id, request);
 
         return ResponseEntity.ok().build();

@@ -17,7 +17,13 @@ public class ProjectService {
 
     @Transactional(readOnly = true)
     public ProjectResponse getProject(Long id) {
-        return ProjectResponse.of(projectRepository.findById(id).orElseThrow());
+        return ProjectResponse.of(getProjectEntity(id));
+    }
+
+    @Transactional(readOnly = true)
+    protected Project getProjectEntity(Long id) {
+        return projectRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + id));
     }
 
     @Transactional
@@ -34,7 +40,6 @@ public class ProjectService {
     public void updateProject(Long id, ProjectUpdateRequest request) {
         Project project = projectRepository.findById(id).orElseThrow();
         project.updateName(request.name());
-        project.updateStatus(request.status());
     }
 
 }

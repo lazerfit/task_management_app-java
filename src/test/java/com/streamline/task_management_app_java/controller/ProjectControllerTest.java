@@ -43,7 +43,7 @@ class ProjectControllerTest {
         // Given
         Long projectId = 1L;
         ProjectResponse projectResponse = new ProjectResponse(LocalDateTime.now(), projectId,
-            "Test Project", Status.IN_PROGRESS);
+            "Test Project");
         given(projectService.getProject(projectId)).willReturn(projectResponse);
 
         // When & Then
@@ -88,7 +88,7 @@ class ProjectControllerTest {
     void updateProject_withValidIdAndRequest_updatesProject() throws Exception {
         // Given
         Long projectId = 1L;
-        ProjectUpdateRequest updateRequest = new ProjectUpdateRequest(1L,"update", Status.COMPLETE);
+        ProjectUpdateRequest updateRequest = new ProjectUpdateRequest(1L,"update");
         String requestBody = objectMapper.writeValueAsString(updateRequest);
 
         // When & Then

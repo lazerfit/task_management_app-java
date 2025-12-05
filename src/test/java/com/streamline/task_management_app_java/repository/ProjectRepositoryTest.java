@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.streamline.task_management_app_java.config.JpaConfig;
 import com.streamline.task_management_app_java.domain.Project;
-import com.streamline.task_management_app_java.domain.Status;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +22,7 @@ class ProjectRepositoryTest {
     @Test
     void saveAndFindById_returnsSavedProject() {
         // Given
-        Project project = new Project("Test Project", Status.TODO);
+        Project project = new Project("Test Project");
 
         // When
         Project savedProject = projectRepository.save(project);
@@ -32,7 +31,6 @@ class ProjectRepositoryTest {
         // Then
         assertThat(foundProject).isPresent();
         assertThat(foundProject.get().getName()).isEqualTo("Test Project");
-        assertThat(foundProject.get().getStatus()).isEqualTo(Status.TODO);
         assertThat(foundProject.get().getCreatedAt()).isNotNull(); // Auditing 동작 확인
     }
 
@@ -40,7 +38,7 @@ class ProjectRepositoryTest {
     @Test
     void delete_removesProject() {
         // Given
-        Project project = new Project("Delete Me", Status.IN_PROGRESS);
+        Project project = new Project("Delete Me");
         Project savedProject = projectRepository.save(project);
 
         // When
@@ -55,17 +53,15 @@ class ProjectRepositoryTest {
     @Test
     void update_reflectsChanges() {
         // Given
-        Project project = new Project("Original Name", Status.TODO);
+        Project project = new Project("Original Name");
         Project savedProject = projectRepository.save(project);
 
         // When
         savedProject.updateName("Updated Name");
-        savedProject.updateStatus(Status.COMPLETE);
         // flush()를 호출하거나 트랜잭션 내에서 조회하면 변경 감지(Dirty Checking) 동작
         Project updatedProject = projectRepository.findById(savedProject.getId()).orElseThrow();
 
         // Then
         assertThat(updatedProject.getName()).isEqualTo("Updated Name");
-        assertThat(updatedProject.getStatus()).isEqualTo(Status.COMPLETE);
     }
 }
