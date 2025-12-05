@@ -3,7 +3,6 @@ package com.streamline.task_management_app_java.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -20,6 +19,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.streamline.task_management_app_java.controller.dto.TaskResponse;
 import com.streamline.task_management_app_java.controller.dto.TaskUpdateRequest;
+import com.streamline.task_management_app_java.controller.dto.TaskCreateRequest;
 import com.streamline.task_management_app_java.domain.Priority;
 import com.streamline.task_management_app_java.domain.Project;
 import com.streamline.task_management_app_java.domain.Status;
@@ -67,7 +67,7 @@ class TaskServiceTest {
     void createTask_savesTaskAndAssignsToProject() {
         // Given
         Long projectId = 1L;
-        Project project = new Project("Test Project");
+        Project project = new Project("Test Project", Status.TODO);
         given(projectService.getProjectEntity(projectId)).willReturn(project);
 
         Task savedTask = Task.builder()
@@ -78,12 +78,14 @@ class TaskServiceTest {
                 .build();
         ReflectionTestUtils.setField(savedTask, "id", 10L);
         given(taskRepository.save(any(Task.class))).willReturn(savedTask);
+        TaskCreateRequest request = new TaskCreateRequest("Task", Status.TODO, Priority.HIGH, LocalDateTime.now(),
+                projectId);
 
         // When
-        Long taskId = taskService.createTask("Task", Status.TODO, Priority.HIGH, LocalDateTime.now(), projectId);
+        TaskResponse response = taskService.createTask(request);
 
         // Then
-        assertThat(taskId).isEqualTo(10L);
+        assertThat(response.id()).isEqualTo(10L);
         then(projectService).should().getProjectEntity(projectId);
         then(taskRepository).should().save(any(Task.class));
 
@@ -96,7 +98,7 @@ class TaskServiceTest {
     void deleteTask_removesTaskFromProject() {
         // Given
         Long taskId = 10L;
-        Project project = new Project("Test Project");
+        Project project = new Project("Test Project", Status.TODO);
         Task task = Task.builder().name("Task").build();
         ReflectionTestUtils.setField(task, "id", taskId);
 

@@ -1,5 +1,7 @@
 package com.streamline.task_management_app_java.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -43,29 +45,36 @@ class ProjectControllerTest {
         // Given
         Long projectId = 1L;
         ProjectResponse projectResponse = new ProjectResponse(LocalDateTime.now(), projectId,
-            "Test Project");
+            "Test Project", Status.TODO);
         given(projectService.getProject(projectId)).willReturn(projectResponse);
 
         // When & Then
-        mockMvc.perform(get("/project/{id}", projectId))
+        mockMvc.perform(get("/v1/project/{id}", projectId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(projectId))
                 .andExpect(jsonPath("$.data.name").value("Test Project"));
     }
 
-    @DisplayName("프로젝트 생성 요청이 오면, 프로젝트를 생성한다.")
+    @DisplayName("프로젝트 생성 요청이 오면, 프로젝트를 생성하고 반환한다.")
     @Test
     void createProject_withValidRequest_createsProject() throws Exception {
         // Given
         ProjectCreateRequest createRequest = new ProjectCreateRequest("New Project", Status.TODO);
+        ProjectResponse projectResponse = new ProjectResponse(LocalDateTime.now(), 1L, "New Project", Status.TODO);
         String requestBody = objectMapper.writeValueAsString(createRequest);
+        
+        given(projectService.createProject(createRequest)).willReturn(projectResponse);
 
         // When & Then
-        mockMvc.perform(post("/project")
+        mockMvc.perform(post("/v1/project")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.id").value(1L))
+                .andExpect(jsonPath("$.data.name").value("New Project"));
 
         then(projectService).should().createProject(createRequest);
     }
@@ -77,26 +86,33 @@ class ProjectControllerTest {
         Long projectId = 1L;
 
         // When & Then
-        mockMvc.perform(delete("/project/{id}", projectId))
-                .andExpect(status().isOk());
+        mockMvc.perform(delete("/v1/project/{id}", projectId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
 
         then(projectService).should().deleteProject(projectId);
     }
 
-    @DisplayName("프로젝트 수정 요청이 오면, 프로젝트를 수정한다.")
+    @DisplayName("프로젝트 수정 요청이 오면, 프로젝트를 수정하고 반환한다.")
     @Test
     void updateProject_withValidIdAndRequest_updatesProject() throws Exception {
         // Given
         Long projectId = 1L;
-        ProjectUpdateRequest updateRequest = new ProjectUpdateRequest(1L,"update");
+        ProjectUpdateRequest updateRequest = new ProjectUpdateRequest(1L, "update", Status.IN_PROGRESS);
+        ProjectResponse response = new ProjectResponse(LocalDateTime.now(), 1L, "update", Status.IN_PROGRESS);
         String requestBody = objectMapper.writeValueAsString(updateRequest);
+        
+        given(projectService.updateProject(eq(projectId), any(ProjectUpdateRequest.class))).willReturn(response);
+
 
         // When & Then
-        mockMvc.perform(put("/project/{id}", projectId)
+        mockMvc.perform(put("/v1/project/{id}", projectId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.name").value("update"));
 
-        then(projectService).should().updateProject(projectId, updateRequest);
+        then(projectService).should().updateProject(eq(projectId), any(ProjectUpdateRequest.class));
     }
 }

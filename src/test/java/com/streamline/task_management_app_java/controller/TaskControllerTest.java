@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -42,26 +41,26 @@ class TaskControllerTest {
     @MockitoBean
     private TaskService taskService;
 
-    @DisplayName("작업 생성 요청이 오면, 작업을 생성하고 ID를 반환한다.")
+    @DisplayName("작업 생성 요청이 오면, 작업을 생성하고 반환한다.")
     @Test
-    void createTask_returnsCreatedId() throws Exception {
+    void createTask_returnsCreatedTask() throws Exception {
         // Given
         Long projectId = 1L;
         TaskCreateRequest request = new TaskCreateRequest("New Task", Status.TODO, Priority.HIGH, LocalDateTime.now(),
                 projectId);
-        Long createdTaskId = 100L;
+        TaskResponse response = new TaskResponse(100L, "New Task", Status.TODO, Priority.HIGH, LocalDateTime.now());
 
-        given(taskService.createTask(any(), any(), any(), any(), eq(projectId))).willReturn(createdTaskId);
+        given(taskService.createTask(any(TaskCreateRequest.class))).willReturn(response);
 
         // When & Then
-        mockMvc.perform(post("/task")
+        mockMvc.perform(post("/v1/task")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(content().string(String.valueOf(createdTaskId)));
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.id").value(100L));
 
-        then(taskService).should().createTask(request.name(), request.status(), request.priority(), request.dueDate(),
-                request.projectId());
+        then(taskService).should().createTask(any(TaskCreateRequest.class));
     }
 
     @DisplayName("ID로 작업을 조회하면, 작업 정보를 반환한다.")
@@ -75,7 +74,7 @@ class TaskControllerTest {
         given(taskService.getTask(taskId)).willReturn(response);
 
         // When & Then
-        mockMvc.perform(get("/task/{id}", taskId))
+        mockMvc.perform(get("/v1/task/{id}", taskId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(taskId))
@@ -92,24 +91,31 @@ class TaskControllerTest {
         Long taskId = 100L;
 
         // When & Then
-        mockMvc.perform(delete("/task/{id}", taskId))
-                .andExpect(status().isOk());
+        mockMvc.perform(delete("/v1/task/{id}", taskId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
 
         then(taskService).should().deleteTask(taskId);
     }
 
-    @DisplayName("작업 수정 요청이 오면, 작업을 수정한다.")
+    @DisplayName("작업 수정 요청이 오면, 작업을 수정하고 반환한다.")
     @Test
     void updateTask_updatesTask() throws Exception {
         // Given
         Long taskId = 100L;
         TaskUpdateRequest request = new TaskUpdateRequest("Updated Name", Priority.LOW, LocalDateTime.now());
+        TaskResponse response = new TaskResponse(taskId, "Updated Name", Status.TODO, Priority.LOW,
+                LocalDateTime.now());
+
+        given(taskService.updateTask(eq(taskId), any(TaskUpdateRequest.class))).willReturn(response);
 
         // When & Then
-        mockMvc.perform(put("/task/{id}", taskId)
+        mockMvc.perform(put("/v1/task/{id}", taskId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.name").value("Updated Name"));
 
         then(taskService).should().updateTask(eq(taskId), any(TaskUpdateRequest.class));
     }

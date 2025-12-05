@@ -27,8 +27,9 @@ public class ProjectService {
     }
 
     @Transactional
-    public void createProject(ProjectCreateRequest request) {
-        projectRepository.save(request.toEntity(request));
+    public ProjectResponse createProject(ProjectCreateRequest request) {
+        Project savedProject = projectRepository.save(request.toEntity(request));
+        return ProjectResponse.of(savedProject);
     }
 
     @Transactional
@@ -37,9 +38,11 @@ public class ProjectService {
     }
 
     @Transactional
-    public void updateProject(Long id, ProjectUpdateRequest request) {
+    public ProjectResponse updateProject(Long id, ProjectUpdateRequest request) {
         Project project = projectRepository.findById(id).orElseThrow();
         project.updateName(request.name());
+        project.updateStatus(request.status());
+        return ProjectResponse.of(project);
     }
 
 }

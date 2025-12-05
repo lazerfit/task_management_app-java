@@ -22,30 +22,27 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
-    @GetMapping("/project/{id}")
+    @GetMapping("/v1/project/{id}")
     public ResponseEntity<@NonNull ApiResponse<ProjectResponse>> getProject(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(projectService.getProject(id)));
     }
 
-    @PostMapping("/project")
-    public ResponseEntity<@NonNull Void> createProject(@RequestBody ProjectCreateRequest request) {
-        projectService.createProject(request);
-
-        return ResponseEntity.ok().build();
+    @PostMapping("/v1/project")
+    public ResponseEntity<ApiResponse<ProjectResponse>> createProject(@RequestBody ProjectCreateRequest request) {
+        ProjectResponse response = projectService.createProject(request);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @DeleteMapping("/project/{id}")
-    public ResponseEntity<@NonNull Void> deleteProject(@PathVariable Long id) {
+    @DeleteMapping("/v1/project/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 
-    @PutMapping("/project/{id}")
-    public ResponseEntity<@NonNull Void> updateProject(@PathVariable Long id,
+    @PutMapping("/v1/project/{id}")
+    public ResponseEntity<ApiResponse<ProjectResponse>> updateProject(@PathVariable Long id,
             @RequestBody ProjectUpdateRequest request) {
-        projectService.updateProject(id, request);
-
-        return ResponseEntity.ok().build();
+        ProjectResponse response = projectService.updateProject(id, request);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

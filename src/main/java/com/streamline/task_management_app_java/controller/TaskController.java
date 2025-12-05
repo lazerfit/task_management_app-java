@@ -20,29 +20,29 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    @PostMapping("/task")
-    public ResponseEntity<@NonNull Long> createTask(@RequestBody TaskCreateRequest request) {
-        Long id = taskService.createTask(request.name(), request.status(), request.priority(), request.dueDate(),
-                request.projectId());
+    @PostMapping("/v1/task")
+    public ResponseEntity<ApiResponse<TaskResponse>> createTask(@RequestBody TaskCreateRequest request) {
+        TaskResponse response = taskService.createTask(request);
 
-        return ResponseEntity.ok(id);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @GetMapping("/task/{id}")
+    @GetMapping("/v1/task/{id}")
     public ResponseEntity<ApiResponse<TaskResponse>> getTask(@PathVariable Long id) {
         TaskResponse taskResponse = taskService.getTask(id);
         return ResponseEntity.ok(ApiResponse.success(taskResponse));
     }
 
-    @DeleteMapping("/task/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+    @DeleteMapping("/v1/task/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 
-    @PutMapping("/task/{id}")
-    public ResponseEntity<Void> updateTask(@PathVariable Long id, @RequestBody TaskUpdateRequest request) {
-        taskService.updateTask(id, request);
-        return ResponseEntity.ok().build();
+    @PutMapping("/v1/task/{id}")
+    public ResponseEntity<ApiResponse<TaskResponse>> updateTask(@PathVariable Long id,
+            @RequestBody TaskUpdateRequest request) {
+        TaskResponse response = taskService.updateTask(id, request);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

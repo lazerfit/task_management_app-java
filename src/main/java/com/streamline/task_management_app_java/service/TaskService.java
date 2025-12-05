@@ -1,15 +1,12 @@
 package com.streamline.task_management_app_java.service;
 
-import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.streamline.task_management_app_java.repository.TaskRepository;
-import com.streamline.task_management_app_java.domain.Status;
 import com.streamline.task_management_app_java.controller.dto.TaskResponse;
 import com.streamline.task_management_app_java.controller.dto.TaskUpdateRequest;
-import com.streamline.task_management_app_java.domain.Priority;
+import com.streamline.task_management_app_java.controller.dto.TaskCreateRequest;
 import com.streamline.task_management_app_java.domain.Project;
 import com.streamline.task_management_app_java.domain.Task;
 import lombok.RequiredArgsConstructor;
@@ -31,21 +28,21 @@ public class TaskService {
     }
 
     @Transactional
-    public Long createTask(String name, Status status, Priority priority, LocalDateTime dueDate, Long projectId) {
+    public TaskResponse createTask(TaskCreateRequest request) {
 
-        Project project = projectService.getProjectEntity(projectId);
+        Project project = projectService.getProjectEntity(request.projectId());
 
         Task task = Task.builder()
-                .name(name)
-                .status(status)
-                .priority(priority)
-                .dueDate(dueDate)
+                .name(request.name())
+                .status(request.status())
+                .priority(request.priority())
+                .dueDate(request.dueDate())
                 .build();
 
         project.addTask(task);
 
         Task savedTask = taskRepository.save(task);
-        return savedTask.getId();
+        return TaskResponse.of(savedTask);
     }
 
     @Transactional
@@ -56,10 +53,11 @@ public class TaskService {
     }
 
     @Transactional
-    public void updateTask(Long id, TaskUpdateRequest request) {
+    public TaskResponse updateTask(Long id, TaskUpdateRequest request) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Can't find task: " + id));
         task.updateTask(request);
+        return TaskResponse.of(task);
     }
 
 }

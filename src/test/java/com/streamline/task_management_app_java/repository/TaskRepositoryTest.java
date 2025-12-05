@@ -31,7 +31,7 @@ class TaskRepositoryTest {
     @Test
     void findById_fetchesProject() {
         // Given
-        Project project = new Project("Parent Project");
+        Project project = new Project("Parent Project", Status.TODO);
         projectRepository.save(project);
 
         Task task = Task.builder()
