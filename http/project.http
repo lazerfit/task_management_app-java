@@ -1,4 +1,4 @@
-### createProject
+### 1. Create Project (Success Scenario)
 
 POST http://localhost:8080/api/v1/project HTTP/1.1
 Content-Type: application/json
@@ -8,8 +8,68 @@ Content-Type: application/json
   "status": "IN_PROGRESS"
 }
 
+> {%
+    let json = response.body.data;
+    client.test("Project Created", function() {
+        client.assert(json.name === "Project 1", "Name mismatch");
+        client.assert(json.status === "IN_PROGRESS", "Status mismatch");
+        client.assert(json.id !== null, "ID should not be null");
+    });
+    client.global.set("projectId", json.id);
+%}
 
-### getProject
 
-GET http://localhost:8080/api/v1/project/1 HTTP/1.1
+### 2. Get Project by ID (Success Scenario)
+
+GET http://localhost:8080/api/v1/project/{{projectId}} HTTP/1.1
 Accept: application/json
+
+> {%
+    let json = response.body.data;
+    client.test("Project Found", function() {
+        client.assert(json.name === "Project 1", "Name mismatch");
+        client.assert(json.id == client.global.get("projectId"), "ID mismatch");
+    });
+%}
+
+
+### 3. Update Project (Success Scenario)
+
+PUT http://localhost:8080/api/v1/project/{{projectId}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Project 1 (Updated)",
+  "status": "COMPLETE"
+}
+
+> {%
+    let json = response.body.data;
+    client.test("Project Updated", function() {
+        client.assert(json.name === "Project 1 (Updated)", "Name not updated");
+        client.assert(json.status === "COMPLETE", "Status not updated");
+    });
+%}
+
+
+### 4. Delete Project (Success Scenario)
+
+DELETE http://localhost:8080/api/v1/project/{{projectId}} HTTP/1.1
+
+> {%
+    client.test("Project Deleted", function() {
+        client.assert(response.body.success === true, "Success field should be true");
+    });
+%}
+
+
+### 5. Get Project by ID (Fail Scenario: Deleted Project)
+
+GET http://localhost:8080/api/v1/project/{{projectId}} HTTP/1.1
+Accept: application/json
+
+> {%
+    client.test("Project Not Found", function() {
+        client.assert(response.body.status >= 400, "Expected error status (4xx/5xx)");
+    });
+%}

@@ -1,0 +1,118 @@
+### Setup: Create Project (Required for Task creation)
+
+POST http://localhost:8080/api/v1/project HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Task Management Project",
+  "status": "IN_PROGRESS"
+}
+
+> {%
+    let json = response.body.data;
+    client.test("Project Created", function() {
+       assert.same(json.name, "Task Management Project");
+       assert.same(json.status, "IN_PROGRESS"); 
+    }
+    client.global.set("projectId", json.id);
+%}
+
+
+### 1. Create Task (Success Scenario)
+
+POST http://localhost:8080/api/v1/task HTTP/1.1
+Content-Type: application/json
+
+{
+  "dueDate": "2026-01-01T12:00:00",
+  "name": "Implement Auth Feature",
+  "priority": "HIGH",
+  "projectId": "{{projectId}}",
+  "status": "TODO"
+}
+
+> {%
+   let json = response.body.data;
+   client.test("Task Created", function() {
+      assert.same(json.name, "Implement Auth Feature");
+   }
+   client.global.set("taskId", json.id);
+%}
+
+
+### 2. Get Task by ID (Success Scenario)
+
+GET http://localhost:8080/api/v1/task/{{taskId}} HTTP/1.1
+Accept: application/json
+
+> {%
+   let json = response.body.data;
+   client.test("Task Found", function() {
+        assert.same(json.name, "Implement Auth Feature");
+   })
+%}
+
+
+### 3. Update Task (Success Scenario)
+
+PUT http://localhost:8080/api/v1/task/{{taskId}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "dueDate": "2026-01-15T12:00:00",
+  "name": "Implement Auth Feature (Updated)",
+  "priority": "MEDIUM"
+}
+
+> {%
+   let json = response.body.data;
+   client.test("Task Found", function() {
+        assert.same(json.name, "Implement Auth Feature (Updated)");
+   })
+%}
+
+
+### 4. Create Task (Fail Scenario: Project Not Found)
+
+POST http://localhost:8080/api/v1/task HTTP/1.1
+Content-Type: application/json
+
+{
+  "dueDate": "2025-12-31T23:59:59",
+  "name": "Orphan Task",
+  "priority": "LOW",
+  "projectId": 999999,
+  "status": "TODO"
+}
+
+> {%
+   let json = response.body;
+   client.test("Task Found", function() {
+        assert.same(json.status, 500);
+   })
+%}
+
+
+### 5. Delete Task (Success Scenario)
+
+DELETE http://localhost:8080/api/v1/task/{{taskId}} HTTP/1.1
+
+> {%
+   let json = response.body;
+   client.test("Task Found", function() {
+        assert.same(json.message, "Success");
+   })
+%}
+
+
+### 6. Get Task by ID (Fail Scenario: Deleted Task)
+
+GET http://localhost:8080/api/v1/task/{{taskId}} HTTP/1.1
+Accept: application/json
+
+> {%
+   let json = response.body;
+   client.test("Task Found", function() {
+        assert.same(json.status, 500);
+   })
+%}

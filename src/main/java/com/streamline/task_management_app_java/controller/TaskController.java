@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.streamline.task_management_app_java.controller.dto.*;
 import com.streamline.task_management_app_java.service.TaskService;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -28,19 +27,19 @@ public class TaskController {
     }
 
     @GetMapping("/v1/task/{id}")
-    public ResponseEntity<ApiResponse<TaskResponse>> getTask(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<TaskResponse>> getTask(@PathVariable("id") Long id) {
         TaskResponse taskResponse = taskService.getTask(id);
         return ResponseEntity.ok(ApiResponse.success(taskResponse));
     }
 
     @DeleteMapping("/v1/task/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteTask(@PathVariable("id") Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
     @PutMapping("/v1/task/{id}")
-    public ResponseEntity<ApiResponse<TaskResponse>> updateTask(@PathVariable Long id,
+    public ResponseEntity<ApiResponse<TaskResponse>> updateTask(@PathVariable("id") Long id,
             @RequestBody TaskUpdateRequest request) {
         TaskResponse response = taskService.updateTask(id, request);
         return ResponseEntity.ok(ApiResponse.success(response));
