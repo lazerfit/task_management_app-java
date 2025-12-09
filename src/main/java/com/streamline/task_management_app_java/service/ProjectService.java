@@ -41,7 +41,6 @@ public class ProjectService {
     public ProjectResponse updateProject(Long id, ProjectUpdateRequest request) {
         Project project = projectRepository.findById(id).orElseThrow();
         project.updateName(request.name());
-        project.updateStatus(request.status());
         return ProjectResponse.of(project);
     }
 

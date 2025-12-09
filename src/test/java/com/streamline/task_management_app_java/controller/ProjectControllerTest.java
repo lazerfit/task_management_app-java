@@ -16,7 +16,6 @@ import tools.jackson.databind.ObjectMapper;
 import com.streamline.task_management_app_java.controller.dto.ProjectCreateRequest;
 import com.streamline.task_management_app_java.controller.dto.ProjectResponse;
 import com.streamline.task_management_app_java.controller.dto.ProjectUpdateRequest;
-import com.streamline.task_management_app_java.domain.Status;
 import com.streamline.task_management_app_java.service.ProjectService;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
@@ -45,7 +44,7 @@ class ProjectControllerTest {
         // Given
         Long projectId = 1L;
         ProjectResponse projectResponse = new ProjectResponse(LocalDateTime.now(), projectId,
-            "Test Project", Status.TODO);
+            "Test Project");
         given(projectService.getProject(projectId)).willReturn(projectResponse);
 
         // When & Then
@@ -61,8 +60,8 @@ class ProjectControllerTest {
     @Test
     void createProject_withValidRequest_createsProject() throws Exception {
         // Given
-        ProjectCreateRequest createRequest = new ProjectCreateRequest("New Project", Status.TODO);
-        ProjectResponse projectResponse = new ProjectResponse(LocalDateTime.now(), 1L, "New Project", Status.TODO);
+        ProjectCreateRequest createRequest = new ProjectCreateRequest("New Project");
+        ProjectResponse projectResponse = new ProjectResponse(LocalDateTime.now(), 1L, "New Project");
         String requestBody = objectMapper.writeValueAsString(createRequest);
         
         given(projectService.createProject(createRequest)).willReturn(projectResponse);
@@ -98,8 +97,8 @@ class ProjectControllerTest {
     void updateProject_withValidIdAndRequest_updatesProject() throws Exception {
         // Given
         Long projectId = 1L;
-        ProjectUpdateRequest updateRequest = new ProjectUpdateRequest(1L, "update", Status.IN_PROGRESS);
-        ProjectResponse response = new ProjectResponse(LocalDateTime.now(), 1L, "update", Status.IN_PROGRESS);
+        ProjectUpdateRequest updateRequest = new ProjectUpdateRequest("update");
+        ProjectResponse response = new ProjectResponse(LocalDateTime.now(), 1L, "update");
         String requestBody = objectMapper.writeValueAsString(updateRequest);
         
         given(projectService.updateProject(eq(projectId), any(ProjectUpdateRequest.class))).willReturn(response);

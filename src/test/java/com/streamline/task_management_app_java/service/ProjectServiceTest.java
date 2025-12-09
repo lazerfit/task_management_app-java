@@ -10,7 +10,6 @@ import com.streamline.task_management_app_java.controller.dto.ProjectCreateReque
 import com.streamline.task_management_app_java.controller.dto.ProjectResponse;
 import com.streamline.task_management_app_java.controller.dto.ProjectUpdateRequest;
 import com.streamline.task_management_app_java.domain.Project;
-import com.streamline.task_management_app_java.domain.Status;
 import com.streamline.task_management_app_java.repository.ProjectRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -35,7 +34,7 @@ class ProjectServiceTest {
     void getProject_withValidId_returnsProject() {
         // Given
         Long projectId = 1L;
-        Project project = new Project("Test Project", Status.TODO);
+        Project project = new Project("Test Project");
         ReflectionTestUtils.setField(project, "id", projectId);
 
         given(projectRepository.findById(projectId)).willReturn(Optional.of(project));
@@ -46,7 +45,6 @@ class ProjectServiceTest {
         // Then
         assertThat(response.id()).isEqualTo(projectId);
         assertThat(response.name()).isEqualTo("Test Project");
-        assertThat(response.status()).isEqualTo(Status.TODO);
         then(projectRepository).should().findById(projectId);
     }
 
@@ -66,8 +64,8 @@ class ProjectServiceTest {
     @Test
     void createProject_savesProject() {
         // Given
-        ProjectCreateRequest request = new ProjectCreateRequest("New Project", Status.TODO);
-        Project project = new Project("New Project", Status.TODO);
+        ProjectCreateRequest request = new ProjectCreateRequest("New Project");
+        Project project = new Project("New Project");
         given(projectRepository.save(any(Project.class))).willReturn(project);
 
         // When
@@ -95,18 +93,17 @@ class ProjectServiceTest {
     void updateProject_updatesProjectFields() {
         // Given
         Long projectId = 1L;
-        Project project = new Project("Old Name", Status.TODO);
+        Project project = new Project("Old Name");
         ReflectionTestUtils.setField(project, "id", projectId);
 
         given(projectRepository.findById(projectId)).willReturn(Optional.of(project));
 
-        ProjectUpdateRequest request = new ProjectUpdateRequest(projectId, "New Name", Status.IN_PROGRESS);
+        ProjectUpdateRequest request = new ProjectUpdateRequest("New Name");
 
         // When
         projectService.updateProject(projectId, request);
 
         // Then
         assertThat(project.getName()).isEqualTo("New Name");
-        assertThat(project.getStatus()).isEqualTo(Status.IN_PROGRESS);
     }
 }

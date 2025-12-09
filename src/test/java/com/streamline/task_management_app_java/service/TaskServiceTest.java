@@ -67,7 +67,7 @@ class TaskServiceTest {
     void createTask_savesTaskAndAssignsToProject() {
         // Given
         Long projectId = 1L;
-        Project project = new Project("Test Project", Status.TODO);
+        Project project = new Project("Test Project");
         given(projectService.getProjectEntity(projectId)).willReturn(project);
 
         Task savedTask = Task.builder()
@@ -98,7 +98,7 @@ class TaskServiceTest {
     void deleteTask_removesTaskFromProject() {
         // Given
         Long taskId = 10L;
-        Project project = new Project("Test Project", Status.TODO);
+        Project project = new Project("Test Project");
         Task task = Task.builder().name("Task").build();
         ReflectionTestUtils.setField(task, "id", taskId);
 
