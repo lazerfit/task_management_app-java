@@ -12,6 +12,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import com.streamline.task_management_app_java.config.JpaConfig;
+import com.streamline.task_management_app_java.controller.dto.TaskUpdateRequest;
 import com.streamline.task_management_app_java.domain.Priority;
 import com.streamline.task_management_app_java.domain.Project;
 import com.streamline.task_management_app_java.domain.Status;
@@ -58,5 +59,35 @@ class TaskRepositoryTest {
         assertThat(foundTask).isPresent();
         assertThat(foundTask.get().getProject()).isNotNull();
         assertThat(foundTask.get().getProject().getName()).isEqualTo("Parent Project");
+    }
+
+    @DisplayName("작업 정보를 수정하면, 변경된 내용이 반영된다.")
+    @Test
+    void updateTask_reflectsChanges() {
+        // Given
+        Project project = new Project("Task Project");
+        projectRepository.save(project);
+
+        Task task = Task.builder()
+                .name("Original Task")
+                .status(Status.TODO)
+                .priority(Priority.LOW)
+                .dueDate(LocalDateTime.now().plusDays(1))
+                .build();
+        project.addTask(task);
+        Task savedTask = taskRepository.save(task);
+
+        // When
+        savedTask.updateTask(new TaskUpdateRequest("Updated Task", Priority.HIGH, LocalDateTime.now().plusDays(2), Status.IN_PROGRESS));
+        taskRepository.flush(); // 변경 감지를 위해 flush
+
+        Optional<Task> updatedTask = taskRepository.findById(savedTask.getId());
+
+        // Then
+        assertThat(updatedTask).isPresent();
+        assertThat(updatedTask.get().getName()).isEqualTo("Updated Task");
+        assertThat(updatedTask.get().getPriority()).isEqualTo(Priority.HIGH);
+        assertThat(updatedTask.get().getStatus()).isEqualTo(Status.IN_PROGRESS);
+        assertThat(updatedTask.get().getDueDate()).isAfter(LocalDateTime.now().plusDays(1));
     }
 }

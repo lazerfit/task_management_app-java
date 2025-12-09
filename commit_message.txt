@@ -1,0 +1,7 @@
+Feat: Enable status update for Task and update tests
+
+- Add `status` field to `TaskUpdateRequest` to allow updating task status.
+- Implement `status` update logic in `Task.updateTask()` method.
+- Update `TaskControllerTest` to correctly handle `status` in `TaskUpdateRequest` and `TaskResponse`, and verify `status` in JSON responses.
+- Update `TaskServiceTest` to include `status` in `TaskUpdateRequest` and verify `status` updates in the `Task` entity.
+- Add a new test case in `TaskRepositoryTest` to verify `Task` entity updates, including the `status` field, and add missing `TaskUpdateRequest` import.

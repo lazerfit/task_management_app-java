@@ -103,8 +103,8 @@ class TaskControllerTest {
     void updateTask_updatesTask() throws Exception {
         // Given
         Long taskId = 100L;
-        TaskUpdateRequest request = new TaskUpdateRequest("Updated Name", Priority.LOW, LocalDateTime.now());
-        TaskResponse response = new TaskResponse(taskId, "Updated Name", Status.TODO, Priority.LOW,
+        TaskUpdateRequest request = new TaskUpdateRequest("Updated Name", Priority.LOW, LocalDateTime.now(), Status.COMPLETE);
+        TaskResponse response = new TaskResponse(taskId, "Updated Name", Status.COMPLETE, Priority.LOW,
                 LocalDateTime.now());
 
         given(taskService.updateTask(eq(taskId), any(TaskUpdateRequest.class))).willReturn(response);
@@ -115,7 +115,8 @@ class TaskControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.name").value("Updated Name"));
+                .andExpect(jsonPath("$.data.name").value("Updated Name"))
+                .andExpect(jsonPath("$.data.status").value("COMPLETE"));
 
         then(taskService).should().updateTask(eq(taskId), any(TaskUpdateRequest.class));
     }

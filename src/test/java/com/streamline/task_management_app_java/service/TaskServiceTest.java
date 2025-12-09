@@ -135,10 +135,11 @@ class TaskServiceTest {
     void updateTask_updatesTaskInfo() {
         // Given
         Long taskId = 10L;
-        Task task = Task.builder().name("Old Name").priority(Priority.LOW).build();
+        Task task = Task.builder().name("Old Name").priority(Priority.LOW).status(Status.TODO).build();
+        ReflectionTestUtils.setField(task, "id", taskId);
         given(taskRepository.findById(taskId)).willReturn(Optional.of(task));
 
-        TaskUpdateRequest request = new TaskUpdateRequest("New Name", Priority.HIGH, LocalDateTime.now());
+        TaskUpdateRequest request = new TaskUpdateRequest("New Name", Priority.HIGH, LocalDateTime.now(), Status.IN_PROGRESS);
 
         // When
         taskService.updateTask(taskId, request);
@@ -146,5 +147,6 @@ class TaskServiceTest {
         // Then
         assertThat(task.getName()).isEqualTo("New Name");
         assertThat(task.getPriority()).isEqualTo(Priority.HIGH);
+        assertThat(task.getStatus()).isEqualTo(Status.IN_PROGRESS);
     }
 }
