@@ -78,6 +78,22 @@ class ProjectControllerTest {
         then(projectService).should().createProject(createRequest);
     }
 
+    @DisplayName("프로젝트 생성 시 이름이 비어있으면 400 Bad Request를 반환한다.")
+    @Test
+    void createProject_withBlankName_returnsBadRequest() throws Exception {
+        // Given
+        ProjectCreateRequest createRequest = new ProjectCreateRequest("");
+        String requestBody = objectMapper.writeValueAsString(createRequest);
+
+        // When & Then
+        mockMvc.perform(post("/v1/project")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+            .andExpect(status().isBadRequest());
+
+        then(projectService).shouldHaveNoInteractions();
+    }
+
     @DisplayName("프로젝트 삭제 요청이 오면, 프로젝트를 삭제한다.")
     @Test
     void deleteProject_withValidId_deletesProject() throws Exception {

@@ -75,6 +75,12 @@ src/main/java/com/streamline/task_management_app_java/
 * 반환 타입으로 `ResponseEntity<T>`를 사용하여 유연성을 확보합니다.
 * Entity를 직접 노출하지 않고 반드시 DTO를 사용합니다.
 
+### 유효성 검사 (Validation)
+
+* **DTO 기반 검증:** 모든 유효성 검사는 DTO(`RequestRecord`) 내부에서 `jakarta.validation.constraints` 어노테이션을 사용하여 정의합니다.
+* **String 검증:** 문자열 필드에는 `@NotNull` 대신 **`@NotBlank`**를 사용하여 `null`, `""`, `" "`(공백)을 모두 차단합니다.
+* **Controller 적용:** Controller 메서드 파라미터에 **`@Valid`**를 선언하여 검증을 트리거합니다. (`@Validated`는 Validation Group 기능이 필요할 때만 제한적으로 사용합니다.)
+
 ## 5. 테스트 작성 지침 (Spring Boot 4.x.x / 3.4+ 표준)
 
 테스트 코드는 **JUnit 5**, **AssertJ**, **Mockito**를 기반으로 작성하며, Spring Boot의 최신 테스트 지원 기능을 활용합니다.
