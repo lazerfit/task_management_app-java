@@ -10,6 +10,7 @@ import com.streamline.task_management_app_java.controller.dto.ProjectCreateReque
 import com.streamline.task_management_app_java.controller.dto.ProjectResponse;
 import com.streamline.task_management_app_java.controller.dto.ProjectUpdateRequest;
 import com.streamline.task_management_app_java.domain.Project;
+import com.streamline.task_management_app_java.domain.ProjectStatus;
 import com.streamline.task_management_app_java.repository.ProjectRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -23,87 +24,85 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
 
-    @InjectMocks
-    private ProjectService projectService;
+  @InjectMocks private ProjectService projectService;
 
-    @Mock
-    private ProjectRepository projectRepository;
+  @Mock private ProjectRepository projectRepository;
 
-    @DisplayName("ID로 프로젝트를 조회하면, 프로젝트 정보를 반환한다.")
-    @Test
-    void getProject_withValidId_returnsProject() {
-        // Given
-        Long projectId = 1L;
-        Project project = new Project("Test Project");
-        ReflectionTestUtils.setField(project, "id", projectId);
+  @DisplayName("ID로 프로젝트를 조회하면, 프로젝트 정보를 반환한다.")
+  @Test
+  void getProject_withValidId_returnsProject() {
+    // Given
+    Long projectId = 1L;
+    Project project = new Project("Test Project");
+    ReflectionTestUtils.setField(project, "id", projectId);
 
-        given(projectRepository.findById(projectId)).willReturn(Optional.of(project));
+    given(projectRepository.findById(projectId)).willReturn(Optional.of(project));
 
-        // When
-        ProjectResponse response = projectService.getProject(projectId);
+    // When
+    ProjectResponse response = projectService.getProject(projectId);
 
-        // Then
-        assertThat(response.id()).isEqualTo(projectId);
-        assertThat(response.name()).isEqualTo("Test Project");
-        then(projectRepository).should().findById(projectId);
-    }
+    // Then
+    assertThat(response.id()).isEqualTo(projectId);
+    assertThat(response.name()).isEqualTo("Test Project");
+    then(projectRepository).should().findById(projectId);
+  }
 
-    @DisplayName("존재하지 않는 ID로 프로젝트를 조회하면, 예외가 발생한다.")
-    @Test
-    void getProject_withInvalidId_throwsException() {
-        // Given
-        Long projectId = 99L;
-        given(projectRepository.findById(projectId)).willReturn(Optional.empty());
+  @DisplayName("존재하지 않는 ID로 프로젝트를 조회하면, 예외가 발생한다.")
+  @Test
+  void getProject_withInvalidId_throwsException() {
+    // Given
+    Long projectId = 99L;
+    given(projectRepository.findById(projectId)).willReturn(Optional.empty());
 
-        // When & Then
-        assertThatThrownBy(() -> projectService.getProject(projectId))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
+    // When & Then
+    assertThatThrownBy(() -> projectService.getProject(projectId))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
 
-    @DisplayName("프로젝트 생성 요청이 오면, 프로젝트를 저장한다.")
-    @Test
-    void createProject_savesProject() {
-        // Given
-        ProjectCreateRequest request = new ProjectCreateRequest("New Project");
-        Project project = new Project("New Project");
-        given(projectRepository.save(any(Project.class))).willReturn(project);
+  @DisplayName("프로젝트 생성 요청이 오면, 프로젝트를 저장한다.")
+  @Test
+  void createProject_savesProject() {
+    // Given
+    ProjectCreateRequest request = new ProjectCreateRequest("New Project", ProjectStatus.TODO);
+    Project project = new Project("New Project");
+    given(projectRepository.save(any(Project.class))).willReturn(project);
 
-        // When
-        projectService.createProject(request);
+    // When
+    projectService.createProject(request);
 
-        // Then
-        then(projectRepository).should().save(any(Project.class));
-    }
+    // Then
+    then(projectRepository).should().save(any(Project.class));
+  }
 
-    @DisplayName("프로젝트 삭제 요청이 오면, 프로젝트를 삭제한다.")
-    @Test
-    void deleteProject_deletesProject() {
-        // Given
-        Long projectId = 1L;
+  @DisplayName("프로젝트 삭제 요청이 오면, 프로젝트를 삭제한다.")
+  @Test
+  void deleteProject_deletesProject() {
+    // Given
+    Long projectId = 1L;
 
-        // When
-        projectService.deleteProject(projectId);
+    // When
+    projectService.deleteProject(projectId);
 
-        // Then
-        then(projectRepository).should().deleteById(projectId);
-    }
+    // Then
+    then(projectRepository).should().deleteById(projectId);
+  }
 
-    @DisplayName("프로젝트 수정 요청이 오면, 프로젝트 정보를 업데이트한다.")
-    @Test
-    void updateProject_updatesProjectFields() {
-        // Given
-        Long projectId = 1L;
-        Project project = new Project("Old Name");
-        ReflectionTestUtils.setField(project, "id", projectId);
+  @DisplayName("프로젝트 수정 요청이 오면, 프로젝트 정보를 업데이트한다.")
+  @Test
+  void updateProject_updatesProjectFields() {
+    // Given
+    Long projectId = 1L;
+    Project project = new Project("Old Name");
+    ReflectionTestUtils.setField(project, "id", projectId);
 
-        given(projectRepository.findById(projectId)).willReturn(Optional.of(project));
+    given(projectRepository.findById(projectId)).willReturn(Optional.of(project));
 
-        ProjectUpdateRequest request = new ProjectUpdateRequest("New Name");
+    ProjectUpdateRequest request = new ProjectUpdateRequest("New Name", ProjectStatus.DONE);
 
-        // When
-        projectService.updateProject(projectId, request);
+    // When
+    projectService.updateProject(projectId, request);
 
-        // Then
-        assertThat(project.getName()).isEqualTo("New Name");
-    }
+    // Then
+    assertThat(project.getName()).isEqualTo("New Name");
+  }
 }

@@ -6,6 +6,7 @@ import com.streamline.task_management_app_java.controller.dto.ProjectResponse;
 import com.streamline.task_management_app_java.controller.dto.ProjectUpdateRequest;
 import com.streamline.task_management_app_java.service.ProjectService;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -26,6 +28,12 @@ public class ProjectController {
   @GetMapping("/v1/project/{id}")
   public ResponseEntity<ApiResponse<ProjectResponse>> getProject(@PathVariable("id") Long id) {
     return ResponseEntity.ok(ApiResponse.success(projectService.getProject(id)));
+  }
+
+  @GetMapping("/v1/project")
+  public ResponseEntity<ApiResponse<List<ProjectResponse>>> getProjects(
+      @RequestParam(name = "filter", defaultValue = "all") String filter) {
+    return ResponseEntity.ok(ApiResponse.success(projectService.getProjects(filter)));
   }
 
   @PostMapping("/v1/project")

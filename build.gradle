@@ -51,3 +51,6 @@ jacocoTestReport {
     }
 }
 
+tasks.withType(JavaExec) {
+    jvmArgs = ["-XX:+UseCompactObjectHeaders"]
+}

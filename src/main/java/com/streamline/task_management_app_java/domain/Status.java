@@ -6,8 +6,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum Status {
-    TODO,
-    IN_PROGRESS,
-    COMPLETE,
-    CANCLED
+  TODO,
+  IN_PROGRESS,
+  DONE,
+  CANCLED
 }
