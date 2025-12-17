@@ -32,19 +32,22 @@ import tools.jackson.databind.ObjectMapper;
 @WebMvcTest(ProjectController.class)
 class ProjectControllerTest {
 
-  @Autowired private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-  @Autowired private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-  @MockitoBean private ProjectService projectService;
+  @MockitoBean
+  private ProjectService projectService;
 
   @DisplayName("ID로 프로젝트를 조회하면, 프로젝트 정보를 반환한다.")
   @Test
   void getProject_withValidId_returnsProjectResponse() throws Exception {
     // Given
     Long projectId = 1L;
-    ProjectResponse projectResponse =
-        new ProjectResponse(LocalDateTime.now(), projectId, "Test Project", ProjectStatus.TODO);
+    ProjectResponse projectResponse = new ProjectResponse(LocalDateTime.now(), projectId, "Test Project",
+        ProjectStatus.TODO);
     given(projectService.getProject(projectId)).willReturn(projectResponse);
 
     // When & Then
@@ -61,14 +64,13 @@ class ProjectControllerTest {
   @Test
   void getProjects_returnsProjectList() throws Exception {
     // Given
-    ProjectResponse projectResponse =
-        new ProjectResponse(LocalDateTime.now(), 1L, "Test Project", ProjectStatus.TODO);
+    ProjectResponse projectResponse = new ProjectResponse(LocalDateTime.now(), 1L, "Test Project", ProjectStatus.TODO);
     List<ProjectResponse> projectList = Collections.singletonList(projectResponse);
-    given(projectService.getProjects()).willReturn(projectList);
+    given(projectService.getProjects("TODO")).willReturn(projectList);
 
     // When & Then
     mockMvc
-        .perform(get("/v1/project"))
+        .perform(get("/v1/project").param("filter", "TODO"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.success").value(true))
@@ -81,10 +83,8 @@ class ProjectControllerTest {
   @Test
   void createProject_withValidRequest_createsProject() throws Exception {
     // Given
-    ProjectCreateRequest createRequest =
-        new ProjectCreateRequest("New Project", ProjectStatus.TODO);
-    ProjectResponse projectResponse =
-        new ProjectResponse(LocalDateTime.now(), 1L, "New Project", ProjectStatus.TODO);
+    ProjectCreateRequest createRequest = new ProjectCreateRequest("New Project", ProjectStatus.TODO);
+    ProjectResponse projectResponse = new ProjectResponse(LocalDateTime.now(), 1L, "New Project", ProjectStatus.TODO);
     String requestBody = objectMapper.writeValueAsString(createRequest);
 
     given(projectService.createProject(createRequest)).willReturn(projectResponse);
@@ -136,8 +136,7 @@ class ProjectControllerTest {
     // Given
     Long projectId = 1L;
     ProjectUpdateRequest updateRequest = new ProjectUpdateRequest("update", ProjectStatus.DONE);
-    ProjectResponse response =
-        new ProjectResponse(LocalDateTime.now(), 1L, "update", ProjectStatus.DONE);
+    ProjectResponse response = new ProjectResponse(LocalDateTime.now(), 1L, "update", ProjectStatus.DONE);
     String requestBody = objectMapper.writeValueAsString(updateRequest);
 
     given(projectService.updateProject(eq(projectId), any(ProjectUpdateRequest.class)))

@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.streamline.task_management_app_java.config.JpaConfig;
 import com.streamline.task_management_app_java.domain.Project;
 import com.streamline.task_management_app_java.domain.ProjectStatus;
-import com.streamline.task_management_app_java.domain.Status;
+
+import jakarta.persistence.EntityManager;
+
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +19,10 @@ import org.springframework.context.annotation.Import;
 @Import(JpaConfig.class)
 class ProjectRepositoryTest {
 
-  @Autowired private ProjectRepository projectRepository;
+  @Autowired
+  private ProjectRepository projectRepository;
+  @Autowired
+  private EntityManager em;
 
   @DisplayName("프로젝트를 저장하고 ID로 조회하면, 동일한 프로젝트가 반환된다.")
   @Test
@@ -59,11 +64,11 @@ class ProjectRepositoryTest {
 
     // When
     savedProject.updateProject("Updated Name", ProjectStatus.DONE);
-    // flush()를 호출하거나 트랜잭션 내에서 조회하면 변경 감지(Dirty Checking) 동작
+    em.flush();
     Project updatedProject = projectRepository.findById(savedProject.getId()).orElseThrow();
 
     // Then
     assertThat(updatedProject.getName()).isEqualTo("Updated Name");
-    assertThat(updatedProject.getStatus()).isEqualTo(Status.DONE);
+    assertThat(updatedProject.getStatus()).isEqualTo(ProjectStatus.DONE);
   }
 }
